@@ -150,7 +150,7 @@ services:
       - |
         apt-get -qq update
         apt-get -qq -y install curl
-        curl --location 'http://connect:8083/connectors/' \
+        curl -X POST --location 'http://connect:8083/connectors/' \
           --header 'Content-Type: application/json' \
           --header 'Cookie: csrftoken=xzHw2iFslXIS1jnibFGhb63wwkisnTLO' \
           --data '{
