@@ -48,6 +48,7 @@ services:
       - broker
     ports:
       - "8081:8081"
+    restart: on-failure
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
@@ -62,6 +63,7 @@ services:
       - 8082:8082
     hostname: rest-proxy
     container_name: rest-proxy
+    restart: on-failure
     environment:
       KAFKA_REST_HOST_NAME: rest-proxy
       KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
@@ -134,3 +136,40 @@ services:
         sleep infinity
   consumer:
     build: ./consumer
+    depends_on:
+      - broker
+    restart: on-failure
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://broker:29092"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+    command: 
+      - bash 
+      - -c
+      - |
+        apt-get -qq update
+        apt-get -qq -y install curl
+        curl --location 'http://connect:8083/connectors/' \
+          --header 'Content-Type: application/json' \
+          --header 'Cookie: csrftoken=xzHw2iFslXIS1jnibFGhb63wwkisnTLO' \
+          --data '{
+              "name": "jdbc_source_mysql_01",
+              "config": {
+                  "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+                  "transforms.createKey.type": "org.apache.kafka.connect.transforms.ValueToKey",
+                  "connection.password": "igmuJx7ZvJ",
+                  "connection.user":"sql12611778",
+                  "transforms": "createKey,extractInt",
+                  "transforms.extractInt.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
+                  "table.whitelist": "test",
+                  "mode": "bulk",
+                  "topic.prefix": "mysql-01-",
+                  "transforms.extractInt.field": "id",
+                  "transforms.createKey.fields": "id",
+                  "poll.interval.ms": "1000",
+                  "tasks.max":1,
+                  "connection.url": "jdbc:mysql://sql12.freesqldatabase.com:3306/sql12611778"
+              }
+          }'
+        python3 consumer.py getting_started.ini
