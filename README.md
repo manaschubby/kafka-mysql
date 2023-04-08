@@ -34,10 +34,10 @@ docker-compose up -d
 
 - Once the containers are running ensure that all containers are running continuosly (Especially connect and broker).
 
-- Open connect has started, restart the consumer. (It will automatically restart at continous intervals until connect is not up, however to save time you can manually restart).
+- Once connect has started, restart the consumer. (It will automatically restart at continous intervals until connect is not up, however to save time you can manually restart).
 
 - It will automatically initialize the JDBC connector and soon you will see events logged on the consumer logs.
 
 Any changes to the MySQL DB shall reflect there.
 
-- **To change the MySQL DB instance open the docker-compose.yaml and change the curl request in the consumer service (line:157 onwards).**
+- **To change the MySQL DB instance open the docker-compose.yaml and change the ENVIRONMENT VARIABLES in the consumer service.**
