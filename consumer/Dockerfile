@@ -2,7 +2,7 @@
 FROM python:3.8-slim-buster
 
 # install app dependencies
-RUN pip install confluent_kafka
+RUN pip install confluent_kafka requests
 
 # install app
 COPY consumer.py /

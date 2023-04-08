@@ -111,28 +111,7 @@ services:
         echo "Launching Kafka Connect worker"
         /etc/confluent/docker/run &
         #
-        curl --location 'http://localhost:8083/connectors/' \
-        --header 'Content-Type: application/json' \
-        --header 'Cookie: csrftoken=xzHw2iFslXIS1jnibFGhb63wwkisnTLO' \
-        --data '{
-            "name": "jdbc_source_mysql_01",
-            "config": {
-                "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
-                "transforms.createKey.type": "org.apache.kafka.connect.transforms.ValueToKey",
-                "connection.password": "igmuJx7ZvJ",
-                "connection.user":"sql12611778",
-                "transforms": "createKey,extractInt",
-                "transforms.extractInt.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
-                "table.whitelist": "test",
-                "mode": "bulk",
-                "topic.prefix": "mysql-01-",
-                "transforms.extractInt.field": "id",
-                "transforms.createKey.fields": "id",
-                "poll.interval.ms": "1000",
-                "tasks.max":1,
-                "connection.url": "jdbc:mysql://sql12.freesqldatabase.com:3306/sql12611778"
-            }
-        }'
+        
         sleep infinity
   consumer:
     build: ./consumer
@@ -144,32 +123,18 @@ services:
         interval: 30s
         timeout: 10s
         retries: 5
+    environment:
+      MYSQL_HOSTNAME: "database-3.cqgpkgybjduv.ap-northeast-1.rds.amazonaws.com"
+      MYSQL_DATABASE: "test"
+      MYSQL_TABLE: "Persons"
+      MYSQL_PORT: "3306"
+      MYSQL_USERNAME: "admin"
+      MYSQL_PASSWORD: "12345678"
     command: 
       - bash 
       - -c
       - |
+        echo "started"
         apt-get -qq update
-        apt-get -qq -y install curl
-        curl -X POST --location 'http://connect:8083/connectors/' \
-          --header 'Content-Type: application/json' \
-          --header 'Cookie: csrftoken=xzHw2iFslXIS1jnibFGhb63wwkisnTLO' \
-          --data '{
-              "name": "jdbc_source_mysql_01",
-              "config": {
-                  "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
-                  "transforms.createKey.type": "org.apache.kafka.connect.transforms.ValueToKey",
-                  "connection.password": "igmuJx7ZvJ",
-                  "connection.user":"sql12611778",
-                  "transforms": "createKey,extractInt",
-                  "transforms.extractInt.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
-                  "table.whitelist": "test",
-                  "mode": "bulk",
-                  "topic.prefix": "mysql-01-",
-                  "transforms.extractInt.field": "id",
-                  "transforms.createKey.fields": "id",
-                  "poll.interval.ms": "1000",
-                  "tasks.max":1,
-                  "connection.url": "jdbc:mysql://sql12.freesqldatabase.com:3306/sql12611778"
-              }
-          }'
+        echo "updated"
         python3 consumer.py getting_started.ini
